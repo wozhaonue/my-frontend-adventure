@@ -6,12 +6,11 @@
 
 npm install
 
-<!-- node版本需要控制在20.19.0，tailwindcss需要下载指定版本3.4.17 -->
+node版本需要控制在20.19.0，tailwindcss需要下载指定版本3.4.17
 
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-npm install react-router-dom
+- npm install -D tailwindcss postcss autoprefixer
+- npx tailwindcss init -p
+- npm install react-router-dom
+- npm run dev
 
-npm run dev
-
-<!-- 运行完以上命令即可在本地运行 -->
+运行完以上命令即可在本地运行
