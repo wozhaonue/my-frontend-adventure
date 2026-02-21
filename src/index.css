@@ -1,0 +1,12 @@
+/**
+ * Tailwind 生成引擎对接前端项目
+ *
+ * @format
+ */
+
+/* 引入 Tailwind 基础样式 */
+@tailwind base;
+/* 引入 Tailwind 组件样式 */
+@tailwind components;
+/* 引入 Tailwind 工具类样式 */
+@tailwind utilities;
