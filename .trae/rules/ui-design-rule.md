@@ -36,3 +36,11 @@ The UI must feel professional, technical, and rewarding.
 - Use `gap-6` for main layouts to ensure "breathing room."
 - Use `backdrop-blur` for sticky headers.
 - Prefer `Lucide-React` icons with a consistent `stroke-width={1.5}`.
+
+## 6. Visual Refinement (Polish)
+
+- **Depth:** Use `ring-1 ring-white/10` and `shadow-[0_8px_30px_rgb(0,0,0,0.12)]` for active cards to create a floating effect.
+- **Typography:** Metadata (Time, Difficulty) should use Monospace fonts (e.g., JetBrains Mono) at 12px for a "Terminal" feel.
+- **Micro-Animation:** Active quest markers should have a subtle `pulse` animation on their outer glow.
+- **Card Content:** Use 80% opacity for secondary descriptions; keep 100% opacity only for Titles and Primary Actions to ensure a clear information hierarchy.
+- **Empty States:** Use a 45-degree subtle stripe pattern (background-size: 20px 20px) for locked modules instead of just gray.
