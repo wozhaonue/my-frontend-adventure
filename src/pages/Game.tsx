@@ -5,8 +5,6 @@ import { useGameLogic } from "../hooks/useGameLogic";
 export default function Game() {
   // 使用自定义 Hook
   const {
-    currentTech,
-    currentLevelIndex,
     level,
     code,
     setCode,
