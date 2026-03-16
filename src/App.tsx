@@ -7,9 +7,12 @@ import {
 } from "react-router-dom";
 import Home from "./pages/Home";
 import Game from "./pages/Game";
+import Navbar from "./components/Navbar";
+
 function App() {
   return (
     <BrowserRouter>
+      <Navbar />
       <Routes>
         {/* 根路径显示首页 */}
         <Route path="/" element={<Home />}></Route>

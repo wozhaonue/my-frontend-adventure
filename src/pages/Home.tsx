@@ -29,11 +29,63 @@ const LEVELS = [
     shadow: "hover:shadow-zinc-500/30",
     desktopPos: "lg:left-[52%] lg:top-[42%]",
   },
+  {
+    id: "js",
+    path: "/learn/js/0",
+    label: "JS",
+    levelIdx: "03",
+    title: "JavaScript 基础",
+    desc: "掌握 ES6+ 语法，理解异步编程与 DOM 操作。",
+    progress: 0,
+    locked: true,
+    gradient: "from-yellow-400 to-orange-500",
+    shadow: "hover:shadow-yellow-500/30",
+    desktopPos: "lg:left-[46%] lg:top-[66%]",
+  },
+  {
+    id: "ts",
+    path: "/learn/ts/0",
+    label: "TS",
+    levelIdx: "04",
+    title: "TypeScript 进阶",
+    desc: "学习类型系统，编写健壮的前端代码。",
+    progress: 0,
+    locked: true,
+    gradient: "from-blue-700 to-indigo-600",
+    shadow: "hover:shadow-blue-600/30",
+    desktopPos: "lg:left-[35%] lg:top-[85%]",
+  },
+  {
+    id: "vue",
+    path: "/learn/vue/0",
+    label: "Vue",
+    levelIdx: "05",
+    title: "Vue.js 实战",
+    desc: "组件化开发，掌握响应式原理与生态系统。",
+    progress: 0,
+    locked: true,
+    gradient: "from-emerald-400 to-teal-600",
+    shadow: "hover:shadow-emerald-500/30",
+    desktopPos: "lg:left-[15%] lg:top-[92%]",
+  },
+  {
+    id: "react",
+    path: "/learn/react/0",
+    label: "React",
+    levelIdx: "06",
+    title: "React 生态",
+    desc: "探索 Hooks、状态管理与 Next.js 服务端渲染。",
+    progress: 0,
+    locked: true,
+    gradient: "from-cyan-400 to-blue-500",
+    shadow: "hover:shadow-cyan-500/30",
+    desktopPos: "lg:left-[2%] lg:top-[80%]",
+  },
 ];
 
 export default function Home() {
   return (
-    <div className="h-screen overflow-y-auto bg-[#f2fcff] text-zinc-900">
+    <div className="h-screen w-full overflow-y-auto bg-[#f2fcff] text-zinc-900 pt-20">
       <div className="mx-auto w-full max-w-[1500px] px-4 py-4 md:px-8 md:py-8 lg:h-full">
         <div className="relative flex flex-col gap-6 lg:h-full">
           {/* Main Hero Section */}
