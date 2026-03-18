@@ -27,7 +27,8 @@ export function parserLevel(markdown: string):Level{
     // 兼容 CRLF 和 LF
     const regex = new RegExp(`## ${header}\\s*\\r?\\n([\\s\\S]*?)(?=\\r?\\n## |$)`,'i');
     const sectionMatch = contentBody.match(regex);
-    return sectionMatch ? sectionMatch[0].trim() : '';
+    // 这里应该是 sectionMatch[1] 来获取捕获组的内容，而不是 sectionMatch[0]（会包含 ## header）
+    return sectionMatch ? sectionMatch[1].trim() : '';
   }
 
   // 辅助函数，提取代码块内容
@@ -43,7 +44,7 @@ export function parserLevel(markdown: string):Level{
     id: metaData.id || 'unknown',
     title: metaData.title || '未命名关卡',
     type: (metaData.type || 'code') as LevelType,
-    dificulty: Number(metaData.dificulty || "1"),
+    dificulty: Number(metaData.difficulty || metaData.dificulty || "1"), // 兼容 spelling typo
     content: getSection('learn'),
     challenge: getSection('challenge'),
     initialcode: getCodeBlock(getSection('Initial Code')),

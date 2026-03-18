@@ -1,5 +1,5 @@
 // 支持地技术栈
-export type TechType = 'html' | 'css' | 'javascript';
+export type TechType = 'html' | 'css' | 'javascript' | 'vue' | 'typescript' | 'react';
 
 // 支持的关卡类型
 export type LevelType = 'code' | 'quiz';

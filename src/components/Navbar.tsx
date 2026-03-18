@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Trophy, Edit2 } from "lucide-react";
+import { Trophy, Edit2, ArrowLeft } from "lucide-react";
 import logo from "../assets/faviarite.jpg";
 
 export default function Navbar() {
   const location = useLocation();
   const isHomePage = location.pathname === "/";
+  // 检查是否在关卡详情页 (路径包含 /learn/)
+  const isLevelPage = location.pathname.includes("/learn/");
 
   const [nickname, setNickname] = useState(() => {
     return (
@@ -51,31 +53,49 @@ export default function Navbar() {
           : "bg-white/80 backdrop-blur-md border-b border-zinc-200/50 shadow-sm"
       }`}
     >
-      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
-        {/* Left: Home Link */}
+      <div className="relative max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
         <Link
           to="/"
-          className={`group flex items-center gap-3 px-2 py-1.5 rounded-xl transition-all duration-200 ${
+          className={`group relative z-20 flex items-center rounded-xl transition-all duration-200 ${
             isHomePage
-              ? "hover:bg-white/20"
-              : "hover:bg-zinc-100/50"
+              ? "gap-3 px-2 py-1.5 hover:bg-white/20"
+              : "h-10 gap-1.5 px-1.5 text-zinc-500 hover:text-zinc-700"
           }`}
         >
-          <div className="relative overflow-hidden rounded-full border border-zinc-200 shadow-sm w-9 h-9 group-hover:scale-105 transition-transform duration-300">
-            <img
-              src={logo}
-              alt="Logo"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <span className="font-bold text-zinc-900 tracking-tight text-lg group-hover:text-blue-600 transition-colors">
-            Frontend Adventure
-          </span>
+          {isLevelPage ? (
+            <>
+              <div className="text-zinc-400 transition-colors group-hover:text-zinc-600">
+                <ArrowLeft size={15} strokeWidth={2.1} />
+              </div>
+              <span className="font-medium tracking-tight leading-none">
+                退出关卡
+              </span>
+            </>
+          ) : (
+            <>
+              <div className="relative overflow-hidden rounded-full border border-zinc-200 shadow-sm w-9 h-9 group-hover:scale-105 transition-transform duration-300">
+                <img
+                  src={logo}
+                  alt="Logo"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <span className="font-bold text-zinc-900 tracking-tight text-lg group-hover:text-blue-600 transition-colors">
+                Frontend Adventure
+              </span>
+            </>
+          )}
         </Link>
 
-        {/* Right: Profile */}
-        <div className="flex items-center gap-4">
-          {/* Honor Title */}
+        {isLevelPage && (
+          <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
+            <span className="block text-lg sm:text-xl text-zinc-900 tracking-[0.02em] font-['Segoe_Script','Lucida_Handwriting','cursive']">
+              Frontend Adventure
+            </span>
+          </div>
+        )}
+
+        <div className="relative z-20 flex items-center gap-4">
           <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-50 to-orange-50 border border-orange-100/50 text-amber-700 text-xs font-bold shadow-sm">
             <Trophy size={13} className="text-amber-500" />
             <span>初级冒险者</span>
@@ -83,9 +103,9 @@ export default function Navbar() {
 
           <div className="h-6 w-px bg-zinc-200 hidden md:block" />
 
-          {/* User Profile Area */}
-          <div className="flex items-center gap-3">
-            {/* Nickname */}
+          <div className="relative flex items-center gap-3">
+            <div className="absolute inset-0 bg-blue-500/70 blur-xl rounded-full -z-10 scale-180 pointer-events-none" />
+
             <div className="relative group/name">
               {isEditingName ? (
                 <input
@@ -116,7 +136,6 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Avatar */}
             <button
               onClick={handleAvatarChange}
               className="relative w-9 h-9 rounded-full overflow-hidden border border-zinc-200 shadow-sm hover:shadow-md transition-all hover:ring-2 hover:ring-blue-100 hover:ring-offset-1"

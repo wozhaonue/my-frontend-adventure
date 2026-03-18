@@ -9,6 +9,9 @@ export const levelLoaders:Record<TechType,(() => Promise<typeof import('*?raw')>
   ],
   css: [],
   javascript: [],
+  vue: [],
+  typescript: [],
+  react: [],
 }
 
 // 获取对应技术的关卡数量

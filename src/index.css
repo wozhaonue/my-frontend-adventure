@@ -10,3 +10,13 @@
 @tailwind components;
 /* 引入 Tailwind 工具类样式 */
 @tailwind utilities;
+
+/* 针对不同的浏览器用不同的样式实现兼容性 */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
