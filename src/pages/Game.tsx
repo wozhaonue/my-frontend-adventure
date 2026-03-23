@@ -18,6 +18,7 @@ import { useGameLogic } from "../hooks/useGameLogic";
 import { InstructionPanel } from "../components/InstructionPanel";
 import { CodeEditor } from "../components/CodeEditor";
 import { PreviewWindow } from "../components/PreviewWindow";
+import confetti from "canvas-confetti";
 
 // 存储伸缩的边界值
 const MIN_TOP_PERCENT = 24;
@@ -150,6 +151,23 @@ export default function Game() {
     };
   }, []);
 
+  useEffect(() => {
+    if (success) {
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: [
+          "#3B82F6",
+          "#10B981",
+          "#F59E0B",
+          "#EF4444",
+          "#8B5CF6",
+        ],
+      });
+    }
+  }, [success]);
+
   const handleToggleEditor = () => {
     if (isEditorMinimized) {
       setIsEditorMinimized(false);
@@ -230,7 +248,7 @@ export default function Game() {
       <div className="flex-1 flex overflow-hidden">
         <div
           ref={leftPanelRef}
-          className="relative w-1/2 flex flex-col border-r border-gray-200 bg-white shadow-xl z-0"
+          className="relative w-1/2 flex flex-col border-r border-gray-200 bg-white z-0"
         >
           {isDragging && previewLineTop && (
             <div
@@ -251,7 +269,7 @@ export default function Game() {
             aria-orientation="horizontal"
             aria-label="调整题目区与编码区高度"
             onMouseDown={handleDragStart}
-            className="h-10 shrink-0 border-y border-gray-300 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 px-3 flex items-center justify-between cursor-row-resize select-none"
+            className="h-10 shrink-0 border-y border-gray-200 bg-gray-50 px-3 flex items-center justify-between cursor-row-resize select-none"
           >
             <GripHorizontal
               size={16}
@@ -290,27 +308,63 @@ export default function Game() {
             )}
           </div>
         </div>
-        <div className="w-1/2 bg-gray-100 relative flex flex-col">
-          {success && (
-            <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-20 flex flex-col items-center justify-center animate-fade-in">
-              <div className="bg-white p-8 rounded-2xl shadow-2xl text-center border border-green-100 transform scale-110">
-                <div className="text-6xl mb-4">🎉</div>
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">
+        <div className="w-1/2 bg-gray-100 flex flex-col overflow-hidden">
+          {/* Top 2/3: Preview Window */}
+          <div className="flex-[2] overflow-hidden min-h-0 border-b border-gray-200 shadow-sm z-10">
+            <PreviewWindow output={output} />
+          </div>
+
+          {/* Bottom 1/3: Status Area */}
+          <div className="flex-1 overflow-hidden bg-white flex flex-col p-6">
+            {success ? (
+              <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-500">
+                <div className="text-4xl mb-3">🎉</div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">
                   挑战成功！
                 </h2>
-                <p className="text-gray-500 mb-8">
+                <p className="text-gray-500 mb-6 text-sm">
                   你已经掌握了本关卡的知识点。
                 </p>
                 <button
                   onClick={nextLevel}
-                  className="px-8 py-3 bg-green-500 text-white rounded-xl font-bold shadow-lg hover:bg-green-600 transition-colors"
+                  className="px-6 py-2.5 bg-green-500 text-white rounded-xl font-medium shadow-md shadow-green-500/20 hover:bg-green-600 hover:shadow-lg hover:shadow-green-500/30 transition-all active:scale-95 flex items-center gap-2"
                 >
-                  下一关 →
+                  <span>下一关</span>
+                  <ArrowLeft
+                    className="rotate-180"
+                    size={16}
+                  />
                 </button>
               </div>
-            </div>
-          )}
-          <PreviewWindow output={output} error={error} />
+            ) : error ? (
+              <div className="flex-1 bg-red-50 rounded-xl border border-red-100 p-4 animate-in fade-in slide-in-from-bottom-2 duration-300 overflow-auto">
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0 w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mt-0.5">
+                    <span className="text-red-500 text-lg leading-none">
+                      ❌
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-red-800 font-semibold mb-1">
+                      运行错误
+                    </h3>
+                    <pre className="text-sm text-red-600 font-mono whitespace-pre-wrap break-words">
+                      {error}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
+                <div className="w-16 h-16 mb-4 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-100 shadow-sm">
+                  <span className="text-2xl">⚡</span>
+                </div>
+                <p className="text-sm font-medium">
+                  点击运行查看结果
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

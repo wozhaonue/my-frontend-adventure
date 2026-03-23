@@ -88,8 +88,15 @@ export default function Navbar() {
         </Link>
 
         {isLevelPage && (
-          <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
-            <span className="block text-lg sm:text-xl text-zinc-900 tracking-[0.02em] font-['Segoe_Script','Lucida_Handwriting','cursive']">
+          <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2">
+            <div className="relative overflow-hidden rounded-full border border-zinc-200 shadow-sm w-8 h-8">
+              <img
+                src={logo}
+                alt="Logo"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <span className="font-bold text-zinc-900 tracking-tight text-lg">
               Frontend Adventure
             </span>
           </div>
@@ -104,7 +111,9 @@ export default function Navbar() {
           <div className="h-6 w-px bg-zinc-200 hidden md:block" />
 
           <div className="relative flex items-center gap-3">
-            <div className="absolute inset-0 bg-blue-500/70 blur-xl rounded-full -z-10 scale-180 pointer-events-none" />
+            {!isLevelPage && (
+              <div className="absolute inset-0 bg-blue-500/70 blur-xl rounded-full -z-10 scale-180 pointer-events-none" />
+            )}
 
             <div className="relative group/name">
               {isEditingName ? (
