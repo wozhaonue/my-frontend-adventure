@@ -40,15 +40,50 @@ export function parserLevel(markdown: string):Level{
   }
   
   // 组装Level对象
-  return {
+  const type = (metaData.type || 'code') as LevelType;
+  
+  const level: Level = {
     id: metaData.id || 'unknown',
     title: metaData.title || '未命名关卡',
-    type: (metaData.type || 'code') as LevelType,
+    type,
     dificulty: Number(metaData.difficulty || metaData.dificulty || "1"), // 兼容 spelling typo
     content: getSection('learn'),
     challenge: getSection('challenge'),
-    initialcode: getCodeBlock(getSection('Initial Code')),
-    validationScript: getCodeBlock(getSection('validation')),
-    solutionCode: getCodeBlock(getSection('solution')),
   };
+
+  if (type === 'code') {
+    level.initialcode = getCodeBlock(getSection('Initial Code'));
+    level.validationScript = getCodeBlock(getSection('validation'));
+    level.solutionCode = getCodeBlock(getSection('solution'));
+  } else if (type === 'quiz') {
+    const optionsSection = getSection('options');
+    const options: { id: string; text: string }[] = [];
+    
+    // 解析类似 "- A: 选项内容" 或 "- 选项内容" 的列表
+    optionsSection.split(/\r?\n/).forEach(line => {
+      const matchWithId = line.match(/^-\s*([A-Za-z0-9]+)\s*[:.]\s*(.+)/);
+      if (matchWithId) {
+        options.push({
+          id: matchWithId[1].trim(),
+          text: matchWithId[2].trim()
+        });
+      } else {
+        const fallbackMatch = line.match(/^-\s*(.+)/);
+        if (fallbackMatch) {
+          // 如果没有明确的 ID，使用字母 A, B, C, D... 作为默认 ID
+          const defaultId = String.fromCharCode(65 + options.length);
+          options.push({
+            id: defaultId,
+            text: fallbackMatch[1].trim()
+          });
+        }
+      }
+    });
+
+    level.options = options;
+    level.correctAnswer = getSection('answer').trim();
+    level.explanation = getSection('explanation').trim();
+  }
+
+  return level;
 }
