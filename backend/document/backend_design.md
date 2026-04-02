@@ -43,12 +43,11 @@
 ### 2.2 关卡与技术模块 (Level & Technology Module)
 
 - **获取 AI 精选关卡**：返回由 AI 处理并标记为“精选（Curated）”的公共或个性化关卡列表。
-- **获取用户的技术列表**：查询当前用户所设定的所有技术模块数组。
-- **添加用户的技术模块**：
-  - **输入数据**：`tech_name` (如 html, css, vue), `title`, `desc`, `label`。
-  - **动态处理**：
-    - `path`：根据 `tech_name` 和用户 ID 动态生成唯一的路由路径。
-    - `styles` (`gradient`, `shadow`, `desktopPos`)：后端通过随机算法，从符合项目 UI 规范（"The Technical Minimalist" 风格）的预设样式池中随机抽取配置，确保前端呈现既美观又多样化。
+- **获取支持的技术列表**：系统固定支持以下核心技术模块：HTML, CSS, JavaScript, TypeScript, Vue, React。不再支持用户动态添加自定义技术。
+- **AI 对话生成关卡 (新功能)**：
+  - **前端设计**：提供一个专门的 AI 对话界面（类似于聊天框）。用户可以通过自然语言向 AI 描述想学习的知识点或关卡内容（例如：“帮我生成一个关于 CSS Flexbox 居中的关卡”）。AI 生成对应格式的关卡数据后，前端展示预览效果，并提供“导入关卡”按钮。
+  - **后端处理 (生成)**：接收用户的对话上下文，调用大语言模型（LLM）API，生成符合系统规范的关卡 JSON 数据或 Markdown 内容并返回给前端（此时不落库）。
+  - **导入关卡**：用户在前端确认无误点击“导入关卡”按钮后，前端调用添加关卡接口，将该数据正式保存至数据库的对应技术路线下。
 - **特定技术的关卡管理**：
   - **获取关卡**：根据指定的 `tech_id` 获取该用户当前技术下的所有关卡，并按 `order_index` 排序。
   - **添加关卡**：向特定技术中追加新关卡内容（可包含 Markdown 文本或结构化数据），系统自动分配或由前端指定一个排序索引。
@@ -72,21 +71,18 @@
 | `is_deactivated`  | Boolean   | 是否已注销（软删除字段，默认 false）          |
 | `created_at`      | Timestamp | 账号创建时间                                  |
 
-### 3.2 `Technologies` 表 (用户配置的技术)
+### 3.2 `Technologies` 表 (系统固定的技术模块)
 
-| 字段名              | 类型      | 描述                        |
-| ------------------- | --------- | --------------------------- |
-| `id`                | UUID (PK) | 技术配置唯一标识            |
-| `user_id`           | UUID (FK) | 关联的用户 ID               |
-| `tech_key`          | String    | 技术标识 (如 'html', 'vue') |
-| `title`             | String    | 显示标题                    |
-| `desc`              | String    | 描述文本                    |
-| `label`             | String    | 标签 (如 'HOT', 'NEW')      |
-| `path`              | String    | 动态生成的路由路径          |
-| `style_gradient`    | String    | 随机分配的渐变样式          |
-| `style_shadow`      | String    | 随机分配的阴影样式          |
-| `style_desktop_pos` | String    | 随机分配的桌面位置坐标/样式 |
-| `created_at`        | Timestamp | 创建时间                    |
+_系统内置固定数据：HTML, CSS, JavaScript, TypeScript, Vue, React，作为全局字典表，不与具体用户绑定。_
+
+| 字段名       | 类型        | 描述                                              |
+| ------------ | ----------- | ------------------------------------------------- |
+| `id`         | String (PK) | 技术配置唯一标识 (可直接使用 tech_key，如 'html') |
+| `tech_key`   | String      | 技术标识 (如 'html', 'vue')                       |
+| `title`      | String      | 显示标题                                          |
+| `desc`       | String      | 描述文本                                          |
+| `path`       | String      | 固定的路由路径                                    |
+| `created_at` | Timestamp   | 创建时间                                          |
 
 ### 3.3 `Levels` 表 (具体的关卡数据)
 
@@ -114,13 +110,13 @@
 
 ### 4.2 技术模块接口 (Technologies)
 
-- `GET /api/techs` - 获取当前用户的所有技术数组
-- `POST /api/techs` - 添加新技术（后端随机生成 styles 和 path）
+- `GET /api/techs` - 获取系统支持的所有技术列表（固定返回 HTML, CSS, JavaScript, TypeScript, Vue, React）
 
 ### 4.3 关卡模块接口 (Levels)
 
 - `GET /api/levels/curated` - 获取 AI 精选关卡
 - `GET /api/levels/:techId` - 获取该用户特定技术的关卡（按 order_index 排序）
-- `POST /api/levels/:techId` - 添加该用户特定技术的关卡
+- `POST /api/levels/ai-generate` - AI 对话生成关卡：接收用户 Prompt，调用 LLM 返回生成的关卡数据结构（仅供前端预览，不落库）
+- `POST /api/levels/:techId` - 添加/导入该用户特定技术的关卡（支持保存通过 AI 生成后确认导入的关卡）
 - `DELETE /api/levels/:levelId` - 删除指定关卡
 - `PUT /api/levels/:techId/reorder` - 调整关卡索引（接收包含 ID 与新 order_index 的数组）
