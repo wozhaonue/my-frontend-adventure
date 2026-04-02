@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Trae rules
+.trae/rules/project_rules.md
+.gitignore
