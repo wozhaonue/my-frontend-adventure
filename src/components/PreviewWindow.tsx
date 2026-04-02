@@ -11,13 +11,27 @@ export function PreviewWindow({ output }: Props) {
   const isFullHtml =
     /<html/i.test(output) || /<body/i.test(output);
 
-  // 如果是完整的 HTML，直接渲染；如果是片段，则用基础模板包裹
+  // 注入安全防御脚本与 CSP 策略
+  const safeGuards = `
+    <!-- 限制网络请求，防止引入外部恶意脚本，仅允许内联脚本和样式 -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline'; img-src * data: blob:;">
+    <script>
+      // 劫持危险的 BOM API，防止无限弹窗阻塞主线程 UI
+      window.alert = function(msg) { console.warn('沙箱拦截了 alert:', msg); };
+      window.confirm = function() { console.warn('沙箱拦截了 confirm'); return false; };
+      window.prompt = function() { console.warn('沙箱拦截了 prompt'); return null; };
+      window.open = function() { console.warn('沙箱拦截了 window.open'); return null; };
+    </script>
+  `;
+
+  // 如果是完整的 HTML，在 <head> 中注入安全策略；如果是片段，则用基础模板包裹
   const srcDocContent = isFullHtml
-    ? output
+    ? output.replace(/(<head>)/i, "$1\n" + safeGuards)
     : `
     <!DOCTYPE html>
     <html>
       <head>
+        ${safeGuards}
         <style>
           body { font-family: sans-serif; padding: 1rem; margin: 0; }
         </style>
