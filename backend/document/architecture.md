@@ -10,6 +10,7 @@
 backend/
   ├── src/
   │   ├── config/        # 环境变量与全局配置文件
+  │   │   └── env.ts     # 使用 Zod 验证并导出类型安全的环境变量
   │   ├── middlewares/   # 全局中间件（安全、错误处理、鉴权等）
   │   ├── modules/       # 业务模块（路由与控制器）
   │   │   ├── users/     # 用户登录、注销、个人信息
@@ -29,6 +30,7 @@ backend/
 ## 2. 数据库结构说明 (基于 PostgreSQL + Prisma)
 
 ### `Users` 表
+
 - `id` (UUID): 主键
 - `wechat_openid` (String): 微信用户的唯一标识 (唯一索引)
 - `wechat_unionid` (String, Optional): 微信开放平台统一标识
@@ -39,6 +41,7 @@ backend/
 - `created_at` (Timestamp): 账号创建时间
 
 ### `Technologies` 表
+
 - `id` (String): 主键，直接使用技术标识（如 'html', 'vue'）
 - `title` (String): 显示标题
 - `desc` (String): 描述文本
@@ -46,6 +49,7 @@ backend/
 - `created_at` (Timestamp): 创建时间
 
 ### `Levels` 表
+
 - `id` (UUID): 主键
 - `user_id` (UUID, FK, Optional): 关联的用户 ID（若为空且 is_ai_curated 为 true，则为系统级公共关卡）
 - `tech_id` (String, FK): 关联的技术配置 ID
