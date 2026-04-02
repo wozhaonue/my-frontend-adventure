@@ -30,15 +30,16 @@
 - **微信公众号验证码登录与注册 (WeChat MP Login/Register)**：
   - **背景**：为解决个人开发者无法申请微信 PC 端网页扫码登录资质的问题，采用“关注公众号并回复验证码”的曲线登录方案。
   - **流程设计**：
-    1. **前端请求验证码**：用户在 PC 端点击登录，前端向后端请求生成一个唯一的短数字验证码（如 `8848`），并展示给用户，同时前端开始轮询后端的登录状态接口。
+    1. **前端请求验证码**：用户在 PC 端点击登录，前端向后端请求生成一个唯一的 4 位纯数字验证码（如 `8848`，有效期 5 分钟），并展示给用户，同时前端开始轮询后端的登录状态接口（建议 3 秒/次）。
     2. **用户发送消息**：用户使用微信关注指定的公众号，并在对话框中发送该验证码 `8848`。
     3. **微信服务器回调**：微信服务器将用户的消息（包含 `OpenID` 和文本 `8848`）通过 Webhook 推送给后端服务器。
     4. **后端处理与绑定**：后端收到推送后，根据 `OpenID` 查找或静默注册用户。随后，将该用户的信息与验证码 `8848` 绑定在缓存（如 Redis）中，并标记为“已验证”，同时通过微信接口自动回复“登录成功”给用户。
     5. **前端获取 Token**：前端的轮询接口发现 `8848` 已被验证，后端即下发 JWT Token，前端完成登录跳转。
-  - **状态维持**：登录/注册成功后，后端生成自定义的 JWT 令牌返回给前端，前端后续请求携带此 JWT。同时更新用户的 `last_login_time`。
+  - **状态维持**：登录/注册成功后，后端生成自定义的单 JWT 令牌（有效期 7 天）返回给前端，同时验证码立即失效（一次性消费）。前端后续请求携带此 JWT，过期需重新扫码登录。同时更新用户的 `last_login_time`。
 - **注销用户 (Deactivate)**：
   - **规则**：当用户未登录系统 90 天以上时，系统自动将其标记为注销状态。
-  - **实现方案**：在用户表中添加一个布尔类型的 `is_deactivated` 字段（默认 `false`）。后端设置一个每日定时任务（Cron Job），扫描 `last_login_time` 超过 90 天且未被注销的用户，将其 `is_deactivated` 更新为 `true`。登录接口会拦截 `is_deactivated = true` 的请求，并提示账号已注销。
+  - **实现方案**：在用户表中添加一个布尔类型的 `is_deactivated` 字段（默认 `false`）。后端设置一个每日定时任务（Cron Job），扫描 `last_login_time` 超过 90 天且未被注销的用户，将其 `is_deactivated` 更新为 `true`。
+  - **自动恢复**：若已被注销的用户（`is_deactivated = true`）再次通过微信验证码登录成功，系统将其视为老用户回归，自动将 `is_deactivated` 恢复为 `false` 并正常下发 Token。
 
 ### 2.2 关卡与技术模块 (Level & Technology Module)
 
@@ -86,15 +87,15 @@ _系统内置固定数据：HTML, CSS, JavaScript, TypeScript, Vue, React，作�
 
 ### 3.3 `Levels` 表 (具体的关卡数据)
 
-| 字段名          | 类型      | 描述                                        |
-| --------------- | --------- | ------------------------------------------- |
-| `id`            | UUID (PK) | 关卡唯一标识                                |
-| `user_id`       | UUID (FK) | 关联的用户 ID                               |
-| `tech_id`       | UUID (FK) | 关联的技术配置 ID                           |
-| `order_index`   | Integer   | 关卡排序索引 (第几关)                       |
-| `content`       | Text/JSON | 关卡具体内容 (如 Markdown 源码、题目配置等) |
-| `is_ai_curated` | Boolean   | 是否为 AI 精选关卡                          |
-| `created_at`    | Timestamp | 创建时间                                    |
+| 字段名          | 类型        | 描述                                                |
+| --------------- | ----------- | --------------------------------------------------- |
+| `id`            | UUID (PK)   | 关卡唯一标识                                        |
+| `user_id`       | UUID (FK)   | 关联的用户 ID（若为全局 AI 精选关卡，该字段可为空） |
+| `tech_id`       | String (FK) | 关联的技术配置 ID（如 'html'）                      |
+| `order_index`   | Integer     | 关卡排序索引 (第几关)                               |
+| `content`       | JSONB       | 关卡具体内容 (结构化 JSON，含题目、初始代码等)      |
+| `is_ai_curated` | Boolean     | 是否为全局 AI 精选公共关卡                          |
+| `created_at`    | Timestamp   | 创建时间                                            |
 
 ---
 
@@ -104,7 +105,8 @@ _系统内置固定数据：HTML, CSS, JavaScript, TypeScript, Vue, React，作�
 
 - `GET /api/users/login-code` - 前端请求获取用于登录的随机数字验证码。
 - `GET /api/users/check-login?code=xxxx` - 前端轮询接口，检查特定验证码是否已完成验证并获取 JWT Token。
-- `POST /api/wechat/webhook` - 微信公众号服务器的回调接口，接收用户发送的文本消息（包含 OpenID 和验证码），处理注册/登录逻辑。
+- `GET /api/wechat/webhook` - 微信公众号服务器的回调接口（用于初次配置服务器 URL 时的签名验证握手）。
+- `POST /api/wechat/webhook` - 微信公众号服务器的回调接口，接收用户发送的 XML 文本消息（包含 OpenID 和验证码），处理注册/登录逻辑。
 - `GET /api/users/me` - 获取当前登录用户的个人信息（需验证 JWT）。
 - `POST /api/users/logout` - 登出（前端清除 Token 即可，后端可选做 Token 黑名单）。
 
@@ -119,4 +121,4 @@ _系统内置固定数据：HTML, CSS, JavaScript, TypeScript, Vue, React，作�
 - `POST /api/levels/ai-generate` - AI 对话生成关卡：接收用户 Prompt，调用 LLM 返回生成的关卡数据结构（仅供前端预览，不落库）
 - `POST /api/levels/:techId` - 添加/导入该用户特定技术的关卡（支持保存通过 AI 生成后确认导入的关卡）
 - `DELETE /api/levels/:levelId` - 删除指定关卡
-- `PUT /api/levels/:techId/reorder` - 调整关卡索引（接收包含 ID 与新 order_index 的数组）
+- `PUT /api/levels/:techId/reorder` - 调整关卡索引（接收该技术下所有关卡的 ID 与新 order_index 数组，进行全量覆盖重排）

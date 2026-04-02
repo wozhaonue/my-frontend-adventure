@@ -1,0 +1,1 @@
+console.log('TypeScript Compilation Success!');
