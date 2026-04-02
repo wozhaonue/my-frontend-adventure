@@ -25,4 +25,3 @@ dist-ssr
 
 # Trae rules
 .trae/rules/project_rules.md
-.gitignore
