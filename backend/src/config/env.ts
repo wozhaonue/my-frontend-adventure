@@ -21,6 +21,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.string().default('3000'),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
+  CORS_ORIGIN: z.string().default('http://localhost:5173'), // 前端允许跨域的地址
   
   // 数据库
   DATABASE_URL: z.string().url('必须是有效的数据库连接字符串'),
