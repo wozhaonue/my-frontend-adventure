@@ -8,6 +8,7 @@ import { logger } from './libs/logger';
 import { BadRequestError } from './libs/errors';
 import { errorHandler } from './middlewares/error.middleware';
 import { validate } from './middlewares/validate.middleware';
+import { prisma } from './libs/prisma';
 
 // 创建 Express 应用实例
 const app = express();
@@ -40,10 +41,19 @@ app.use(pinoHttp({ logger }));
 
 // 健康检查接口
 // 路径: /api/health
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    message: 'Frontend Quest API is running smoothly.',
+app.get('/api/health', async (req, res) => {
+  let dbStatus = 'disconnected';
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    dbStatus = 'connected';
+  } catch (error) {
+    dbStatus = 'error';
+  }
+
+  res.status(dbStatus === 'connected' ? 200 : 503).json({
+    status: dbStatus === 'connected' ? 'success' : 'error',
+    message: 'Frontend Quest API health check.',
+    database: dbStatus,
     environment: env.NODE_ENV,
     timestamp: new Date().toISOString(),
   });

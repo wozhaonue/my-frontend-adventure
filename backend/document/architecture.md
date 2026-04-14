@@ -22,6 +22,7 @@ backend/
   │   │   └── ai/        # AI 生成关卡预览
   │   ├── jobs/          # 定时任务（如：90天自动注销扫描）
   │   ├── libs/          # 核心外部依赖实例化库（Prisma, Redis, Logger）
+  │   │   ├── prisma.ts  # Prisma 数据库客户端实例与健康检查
   │   │   ├── logger.ts  # Pino 日志实例封装
   │   │   └── errors.ts  # 业务自定义错误类 (AppError)
   │   ├── app.ts         # Express 应用实例构建（不含监听）
