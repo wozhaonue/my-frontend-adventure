@@ -6,3 +6,47 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id             String    @id @default(uuid()) @db.Uuid
+  wechatOpenid   String    @unique @map("wechat_openid")
+  wechatUnionid  String?   @map("wechat_unionid")
+  nickname       String?
+  avatarUrl      String?   @map("avatar_url")
+  lastLoginTime  DateTime  @default(now()) @map("last_login_time")
+  isDeactivated  Boolean   @default(false) @map("is_deactivated")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  levels         Level[]
+
+  @@map("users")
+}
+
+model Technology {
+  id          String   @id // 例如 'html', 'vue'
+  title       String
+  desc        String
+  path        String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  levels      Level[]
+
+  @@map("technologies")
+}
+
+model Level {
+  id            String      @id @default(uuid()) @db.Uuid
+  userId        String?     @db.Uuid @map("user_id")
+  techId        String      @map("tech_id")
+  orderIndex    Int         @map("order_index")
+  content       Json
+  isAiCurated   Boolean     @default(false) @map("is_ai_curated")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  user          User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  technology    Technology  @relation(fields: [techId], references: [id], onDelete: Cascade)
+
+  // 同一个技术下，不同关卡的 order_index 应该是不同的（但这通常由业务层保证），或者可以加个联合索引加快查询
+  @@index([techId, orderIndex])
+  @@map("levels")
+}
