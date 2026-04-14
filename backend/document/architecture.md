@@ -12,6 +12,8 @@ backend/
   │   ├── config/        # 环境变量与全局配置文件
   │   │   └── env.ts     # 使用 Zod 验证并导出类型安全的环境变量
   │   ├── middlewares/   # 全局中间件（安全、错误处理、鉴权等）
+  │   │   ├── error.middleware.ts    # 全局错误拦截器
+  │   │   └── validate.middleware.ts # Zod 请求参数校验中间件
   │   ├── modules/       # 业务模块（路由与控制器）
   │   │   ├── users/     # 用户登录、注销、个人信息
   │   │   ├── wechat/    # 微信公众号回调接收与验签
@@ -20,7 +22,8 @@ backend/
   │   │   └── ai/        # AI 生成关卡预览
   │   ├── jobs/          # 定时任务（如：90天自动注销扫描）
   │   ├── libs/          # 核心外部依赖实例化库（Prisma, Redis, Logger）
-  │   │   └── logger.ts  # Pino 日志实例封装
+  │   │   ├── logger.ts  # Pino 日志实例封装
+  │   │   └── errors.ts  # 业务自定义错误类 (AppError)
   │   ├── app.ts         # Express 应用实例构建（不含监听）
   │   └── server.ts      # HTTP 服务入口与端口监听
   └── prisma/
